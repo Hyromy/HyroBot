@@ -1,0 +1,9 @@
+# archivos de configuración
+*env
+
+# archivos cache de python
+__pycache__
+*.pyc
+
+# archivos de prueba
+*test*.py
