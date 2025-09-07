@@ -1,8 +1,6 @@
-import discord
-
 from aiohttp import ClientSession
+from discord import Object
 from discord.ext.commands import Bot
-from os import getenv
 from typing import List, Optional
 
 class Hyro(Bot):
@@ -59,15 +57,12 @@ class Hyro(Bot):
 
     async def __set_testing_guild(self):
         if self.testing_guild_id:
-            guild = discord.Object(self.testing_guild_id)
+            guild = Object(self.testing_guild_id)
             self.tree.copy_global_to(guild = guild)
             await self.tree.sync(guild = guild)
 
     async def __set_app_commands(self):
-        HOME = discord.Object(id = int(getenv("HOME_GUILD")))
-
-        self.tree.copy_global_to(guild = HOME)
-        await self.tree.sync(guild = HOME)
+        await self.tree.sync()
 
     async def __set_views(self):
         pass

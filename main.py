@@ -20,7 +20,8 @@ async def main():
         "debug": debug,
         "initial_extensions": get_cogs_name(),
         "intents": intents,
-        "web_client": ClientSession()
+        "web_client": ClientSession(),
+        "testing_guild_id": int(getenv("HOME_GUILD"))
     }
 
     async with Hyro(**KWARGS) as hyro:
