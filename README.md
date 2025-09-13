@@ -28,6 +28,10 @@ DISCORD_BOT_TOKEN="TOKEN"              # obligatorio para DEBUG="FALSE"
 DEBUG_DISCORD_BOT_TOKEN="TOKEN"        # obligatorio
 HOME_GUILD="ID servidor de discord"    # obligatorio
 OWNER_ID="ID usuario de discord"       # opcional para algunos comandos
+
+# auto deploy (cybrancee)
+PTERODACTYL_API_KEY="api key"
+SERVER_ID="id server"
 ```
 
 ## Instalación
