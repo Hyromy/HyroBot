@@ -18,16 +18,17 @@ requirements.txt    # dependencias
 ## Variables de entorno
 ```sh
 # api
-API_URL="url de api"                   # obligatorio para consultas externas
+API_URL="url de api"                    # * consultas externas
 
 # debug
-DEBUG="True"
+DEBUG="True"                            # *
 
 # discord
-DISCORD_BOT_TOKEN="TOKEN"              # obligatorio para DEBUG="FALSE"
-DEBUG_DISCORD_BOT_TOKEN="TOKEN"        # obligatorio
-HOME_GUILD="ID servidor de discord"    # obligatorio
-OWNER_ID="ID usuario de discord"       # opcional para algunos comandos
+DISCORD_BOT_TOKEN="TOKEN"               # * cuando DEBUG="False"
+DEBUG_DISCORD_BOT_TOKEN="TOKEN"         # *
+HOME_GUILD="ID servidor de discord"     # *
+OWNER_ID="ID usuario de discord"        # para algunos comandos
+DEBUG_CHANNEL_ID="ID de canal debug"    # para feedback 
 ```
 
 ## Instalación
