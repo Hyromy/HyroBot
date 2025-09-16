@@ -11,6 +11,7 @@ from discord.ui import (
     TextInput,
 )
 from os import getenv
+from pytz import timezone
 
 class Feedback(Modal):
     title = "Envía tus comentarios"
@@ -36,7 +37,7 @@ class Feedback(Modal):
             name = f"Enviado por {interaction.user.name} ({interaction.user.id})",
             icon_url = str(interaction.user.display_avatar.url)
         )
-        embed.set_footer(text = datetime.now("America/Mexico_City").strftime("%Y/%m/%d - %H:%M:%S"))
+        embed.set_footer(text = datetime.now(timezone("America/Mexico_City")).strftime("%Y/%m/%d - %H:%M:%S"))
 
         channel = interaction.client.get_channel(int(getenv("DEBUG_CHANNEL_ID")))
         await channel.send(embed = embed)

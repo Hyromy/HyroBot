@@ -14,6 +14,7 @@ from os import getenv
 from random import choice
 
 from utils.bot import Hyro
+from utils.modals import Feedback
 from utils.views import GeneralHelpView, CommandHelpView
 
 class Commands(Cog):
@@ -58,7 +59,7 @@ class Commands(Cog):
         )
         embed.add_field(
             name = "Sugerencias o bugs",
-            value = f"Envía tus comentarios con </feedback:{CMDS_ID.get("dev", dict()).get("feedback", 0)}>",
+            value = f"Envía tus comentarios con </feedback:{CMDS_ID.get("commands", dict()).get("feedback", 0)}>",
             inline = False
         )
         embed.add_field(
@@ -218,6 +219,16 @@ class Commands(Cog):
         embed.set_footer(text = f"Cuenta creada el {member.created_at.strftime('%Y/%m/%d')}, {(interaction.created_at - member.created_at).days} días atrás")
 
         await interaction.response.send_message(embed = embed)
+
+    @app_commands.command(description = "Envía un comentario al creador del bot.")
+    async def feedback(self, interaction: Interaction):
+        if getenv("DEBUG_CHANNEL_ID") is None:
+            return await interaction.response.send_message(
+                "Actualmente no se tiene un canal de comentarios configurado para este bot. No se pueden enviar comentarios.",
+                delete_after = 7.5,
+            )
+
+        await interaction.response.send_modal(Feedback())
 
 async def setup(Hyro: Hyro):
     await Hyro.add_cog(Commands(Hyro))
