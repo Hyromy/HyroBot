@@ -1,15 +1,145 @@
 import discord
 
-from discord import app_commands, Interaction, Member
+from discord import (
+    app_commands,
+    Color,
+    Embed,
+    Interaction,
+    Member,
+)
 from discord.ext.commands import Cog
 from discord.utils import format_dt
 from typing import Optional
+from os import getenv
+from random import choice
 
 from utils.bot import Hyro
+from utils.views import GeneralHelpView, CommandHelpView
 
 class Commands(Cog):
     def __init__(self, hyro: Hyro):
         self.hyro = hyro
+
+        self.show = True
+        self.name = "Comandos generales"
+        self.description = "Comandos generales del bot"
+        self.icon = "🌐"
+
+    def __set_embed_footer(self, embed: Embed):
+        owner = self.hyro.get_user(int(getenv("OWNER_ID")))
+        if owner:
+            embed.add_field(name = "", value = "", inline = False)
+            embed.set_footer(
+                text = f"@{owner.name}{" - " + self.hyro.version or ''}",
+                icon_url = owner.display_avatar.url
+            )
+
+    def _general_help_embed(self) -> Embed:
+        cog = choice(list([
+            cog for cog in self.hyro.cogs.values()
+            if getattr(cog, "show", False) and hasattr(cog, "name")
+        ]))
+        cmd = choice(list(cog.get_app_commands()))
+
+        try:
+            from utils.vars import CMDS_ID
+        except ImportError:
+            CMDS_ID = dict()
+
+        embed = Embed(
+            color = Color.blurple(),
+            title = f"Ayuda de {self.hyro.user.name}",
+            description = "Ayuda general del bot, así como las categorías y comandos disponibles."
+        )
+        embed.add_field(
+            name = "Comandos",
+            value = f"Usa el menú desplegable o escribe </help:{CMDS_ID.get("commands", dict()).get("help", 0)}> `{cog.name} {cmd.name}` para más información",
+            inline = False
+        )
+        embed.add_field(
+            name = "Sugerencias o bugs",
+            value = f"Envía tus comentarios con </feedback:{CMDS_ID.get("dev", dict()).get("feedback", 0)}>",
+            inline = False
+        )
+        embed.add_field(
+            name = "Lista de cambios",
+            value = "Actualizaciones en [GitHub](https://github.com/Hyromy/HyroBot/releases)",
+            inline = False
+        )
+        self.__set_embed_footer(embed)
+            
+        return embed
+    
+    def _cog_help_embed(self, cog: Cog) -> Embed:
+        embed = Embed(
+            color = Color.blurple(),
+            title = f"Ayuda de {((cog.icon + " ") if cog.icon else "") + cog.name}",
+            description = cog.description or "No hay descripción disponible."
+        )
+        embed.add_field(
+            name = "Parámetros",
+            value = f"`()` Opcional `<>` Obligatorio",
+            inline = False
+        )
+
+        try:
+            from utils.vars import CMDS_ID
+        except ImportError:
+            CMDS_ID = dict()
+
+        embed.add_field(name = "", value = "", inline = False)
+        for cmd in sorted(cog.get_app_commands(), key = lambda c: c.name):
+            args = []
+            for name, param in cmd.callback.__annotations__.items():
+                if name == "interaction":
+                    continue
+
+                is_optional = "Optional" in str(param)
+                arg_str = "`" + (f"({name})" if is_optional else f"<{name}>") + "`"
+                args.append(arg_str)
+
+            embed.add_field(
+                name = f"</{cmd.name}:{CMDS_ID.get(cog.__class__.__name__.lower(), dict()).get(cmd.name, 0)}> {' '.join(args) if args else ''}",
+                value = cmd.description or "No hay descripción disponible.",
+                inline = False
+            )
+        self.__set_embed_footer(embed)
+
+        return embed
+
+    @app_commands.command(description = "Muestra el mensaje de ayuda del bot.")
+    @app_commands.describe(category = "La categoría de la que quieres ver los comandos")
+    @app_commands.rename(category = "categoría")
+    async def help(self, interaction: Interaction,
+        category: Optional[str] = None
+    ):
+        await interaction.response.defer()
+
+        if not category:
+            return await interaction.followup.send(
+                embed = self._general_help_embed(),
+                view = GeneralHelpView(self.hyro)
+            )
+
+        await interaction.followup.send(
+            embed = self._cog_help_embed(
+                self.hyro.get_cog(category)
+            ),
+            view = CommandHelpView(self.hyro, self.hyro.get_cog("Commands"))
+        )
+
+    @help.autocomplete(name = "category")
+    async def help_autocomplete(self, interaction: Interaction, current: str):
+        return [
+            app_commands.Choice(
+                name = f"{cog.icon} {cog.name}",
+                value = cog.__class__.__name__
+            ) for cog in self.hyro.cogs.values()
+            if (
+                getattr(cog, "show", False) and hasattr(cog, "name")
+                and current.lower().strip() in cog.name.lower()
+            )
+        ][:25]
 
     @app_commands.command(description = "Envía un pong para comprobar la latencia.")
     async def ping(self, interaction: Interaction):
@@ -91,4 +221,3 @@ class Commands(Cog):
 
 async def setup(Hyro: Hyro):
     await Hyro.add_cog(Commands(Hyro))
-    

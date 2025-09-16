@@ -31,3 +31,5 @@ htmlcov/
 # Otros
 *.bak
 *.swp
+release.md
+utils/vars.py

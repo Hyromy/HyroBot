@@ -11,6 +11,11 @@ class Moderation(Cog):
     def __init__(self, Hyro: Hyro):
         self.hyro = Hyro
 
+        self.show = True
+        self.name = "Moderación"
+        self.description = "Comandos de moderación"
+        self.icon = "🛡️"
+
     async def __interaction_response_check(self, interaction: Interaction, msg: str):
         if interaction.response.is_done():
             await interaction.followup.send(msg, ephemeral = True)

@@ -2,6 +2,7 @@ from aiohttp import ClientSession
 from discord import Object
 from discord.ext.commands import Bot
 from typing import List, Optional
+from os import getenv
 
 class Hyro(Bot):
     def __init__(
@@ -22,11 +23,15 @@ class Hyro(Bot):
         self.initial_extensions = initial_extensions
 
         self.debug = debug
+        self.version = None
 
     async def setup_hook(self):
         print(f"Setting up {self.user}...")
 
+        self.remove_command("help")
+
         await self.__load_extensions()
+        await self.__set_version()
         await self.__set_testing_guild()
         await self.__set_app_commands()
         await self.__set_views()
@@ -54,6 +59,13 @@ class Hyro(Bot):
         extensions = len(self.initial_extensions)
 
         print(f"\nLoaded {loaded} / {extensions} extensions")
+
+    async def __set_version(self):
+        self.version = (
+            await (
+                await self.web_client.get(getenv("REPO_URL"))
+            ).json()
+        )[0]["name"]
 
     async def __set_testing_guild(self):
         if self.testing_guild_id:
