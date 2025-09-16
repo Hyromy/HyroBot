@@ -34,6 +34,7 @@ class Hyro(Bot):
         await self.__set_version()
         await self.__set_testing_guild()
         await self.__set_app_commands()
+        await self.__set_cogs_loops()
         await self.__set_views()
         await self.__set_dynamic()
 
@@ -75,6 +76,11 @@ class Hyro(Bot):
 
     async def __set_app_commands(self):
         await self.tree.sync()
+
+    async def __set_cogs_loops(self):
+        presence_cog = self.get_cog("Presence")
+        if presence_cog:
+            self.loop.create_task(presence_cog.count_status())
 
     async def __set_views(self):
         pass
